@@ -2,10 +2,9 @@ source 'https://rubygems.org'
 ruby '2.2.1'
 
 group :development, :test do
-  gem 'sqlite3', '1.3.10'
   gem 'byebug', '4.0.5'
   gem 'web-console', '2.1.2'
-  gem 'spring', '1.3.5'
+  gem 'spring', '1.3.6'
   gem 'rspec-rails', '3.2.1'
 end
 
@@ -15,6 +14,7 @@ group :test do
 end
 
 gem 'rails', '4.2.1'
+gem 'pg', '0.17.1'
 gem 'sass-rails', '5.0.3'
 gem 'uglifier', '2.7.1'
 gem 'coffee-rails', '4.1.0'
@@ -24,6 +24,5 @@ gem 'jbuilder', '2.2.12'
 gem 'sdoc', '0.4.1', group: :doc
 
 group :production do
-  gem 'pg', '0.17.1'
   gem 'rails_12factor', '0.0.2'
 end
