@@ -14,6 +14,7 @@ group :test do
 end
 
 gem 'rails', '4.2.1'
+gem 'bcrypt', '3.1.10'
 gem 'bootstrap-sass', '3.3.5.1'
 gem 'pg', '0.17.1'
 gem 'sass-rails', '5.0.3'
