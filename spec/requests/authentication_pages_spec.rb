@@ -19,6 +19,11 @@ describe 'Authentication' do
 
       it { should have_title(full_title('Sign In')) }
       it { should have_selector('div.alert.alert-danger') }
+
+      describe "after visiting another page" do
+        before { click_link 'Home' }
+        it { should_not have_selector('div.alert.alert-danger') }
+      end
     end
 
     describe 'with valid information' do
@@ -30,9 +35,9 @@ describe 'Authentication' do
       end
 
       it { should have_title(full_title(user.name)) }
-      it { should have_link('Profile',    href: user_path(user)) }
-      it { should have_link('Sign out',   href: signout_path) }
-      it { should_not have_link('Sign in' href: signin_path) }
+      it { should have_link('Profile',     href: user_path(user)) }
+      it { should have_link('Sign out',    href: signout_path) }
+      it { should_not have_link('Sign in', href: signin_path) }
     end
   end
 end
