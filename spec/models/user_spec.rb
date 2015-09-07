@@ -12,6 +12,7 @@ describe User do
   it { should respond_to (:password_digest) }
   it { should respond_to (:password) }
   it { should respond_to (:password_confirmation) }
+  it { should respond_to (:remember_token) }
 
   it { should be_valid }
 
@@ -65,7 +66,7 @@ describe User do
       expect(@user.reload.email).to eq mixed_case_email.downcase
     end
   end
-  
+
   describe "when email address is already taken" do
     before do
       user_with_same_email = @user.dup
@@ -105,5 +106,10 @@ describe User do
       it { should_not eq user_for_invalid_password }
       specify { expect(user_for_invalid_password).to be_falsey }
     end
+  end
+
+  describe "remember_token" do
+    before { @user.save }
+    specify { expect(@user.remember_token).not_to be_blank }
   end
 end

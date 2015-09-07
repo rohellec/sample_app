@@ -1,5 +1,6 @@
 require 'rails_helper'
 require_relative '../support/utilities.rb'
+require_relative '../support/factories.rb'
 
 describe 'Authentication' do
   subject { page }
