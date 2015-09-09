@@ -1,4 +1,5 @@
 require 'rails_helper'
+require_relative '../support/utilities.rb'
 
 describe User do
 
@@ -68,12 +69,7 @@ describe User do
   end
 
   describe "when email address is already taken" do
-    before do
-      user_with_same_email = @user.dup
-      user_with_same_email.email = @user.email.upcase
-      user_with_same_email.save
-    end
-
+    before { duplicate_user(@user) }
     it { should_not be_valid }
   end
 
