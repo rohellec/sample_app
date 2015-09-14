@@ -5,12 +5,18 @@ require_relative '../support/factories.rb'
 describe "User Pages" do
   subject { page }
 
+  shared_examples_for "user pages" do
+    it { should have_selector('h1', text: heading) }
+    it { should have_title(full_title(page_title)) }
+  end
+
   describe "Profile page" do
     let (:user) { FactoryGirl.create(:user) }
+    let (:heading) { user.name }
+    let (:page_title) { user.name }
     before { visit user_path(user) }
 
-    it { should have_content(user.name) }
-    it { should have_title(user.name) }
+    it_should_behave_like "user pages"
   end
 
   describe "SignUp Page" do
@@ -25,18 +31,13 @@ describe "User Pages" do
       describe "after submission" do
         before { click_button submit }
 
-        it { should have_content('error') }
+        it { should have_error_message('error') }
         it { should have_title(full_title('Sign Up')) }
       end
     end
 
     describe "with valid information" do
-      before do
-        fill_in "Name",         with: "Example User"
-        fill_in "Email",        with: "user@example.com"
-        fill_in "Password",     with: "foobar"
-        fill_in "Confirmation", with: "foobar"
-      end
+      before { valid_fill_in }
 
       it "should create a user" do
         expect { click_button submit }.to change(User, :count).by(1)
@@ -47,8 +48,8 @@ describe "User Pages" do
         let(:user) { User.find_by(email: "user@example.com") }
 
         it { should have_link('Sign out') }
-        it { should have_selector('div.alert.alert-success', text: 'Welcome') }
-        it { should have_title(user.name) }
+        it { should have_success_message('Welcome') }
+        it { should have_title(full_title(user.name)) }
 
         describe "followed by signout" do
           before { click_link 'Sign out' }
@@ -57,7 +58,9 @@ describe "User Pages" do
       end
     end
 
-    it { should have_selector('h1', text: 'Sign Up') }
-    it { should have_title(full_title('Sign Up')) }
+    let (:heading) { 'Sign Up' }
+    let (:page_title) { 'Sign Up' }
+
+    it_should_behave_like "user pages"
   end
 end
