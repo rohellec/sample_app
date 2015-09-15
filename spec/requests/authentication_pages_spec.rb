@@ -35,6 +35,24 @@ describe 'Authentication' do
       it { should have_link('Profile',     href: user_path(user)) }
       it { should have_link('Sign out',    href: signout_path) }
       it { should_not have_link('Sign in', href: signin_path) }
+
+      describe 'followed by sign out' do
+        before { click_link 'Sign out' }
+
+        it { should have_title(full_title('')) }
+        it { should have_link('Sign in', href: signin_path) }
+        it { should_not have_link('Sign out', href: signout_path) }
+        it { should_not have_link('Profile',  href: user_path(user)) }
+
+        describe 'and then signed out from another browser window' do
+          before { delete signout_path }
+
+          it { should have_title(full_title('')) }
+          it { should have_link('Sign in', href: signin_path) }
+          it { should_not have_link('Sign out', href: signout_path) }
+          it { should_not have_link('Profile',  href: user_path(user)) }
+        end
+      end
     end
   end
 end

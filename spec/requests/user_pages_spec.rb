@@ -50,11 +50,6 @@ describe "User Pages" do
         it { should have_link('Sign out') }
         it { should have_success_message('Welcome') }
         it { should have_title(full_title(user.name)) }
-
-        describe "followed by signout" do
-          before { click_link 'Sign out' }
-          it { should have_link('Sign in') }
-        end
       end
     end
 

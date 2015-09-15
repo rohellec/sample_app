@@ -12,6 +12,7 @@ describe User do
   it { should respond_to (:password_digest) }
   it { should respond_to (:password) }
   it { should respond_to (:password_confirmation) }
+  it { should respond_to (:remember_digest) }
   it { should respond_to (:remember_token) }
 
   it { should be_valid }
@@ -99,8 +100,19 @@ describe User do
     end
   end
 
-  describe "remember_token" do
+  describe "return value of authenticated? method" do
     before { @user.save }
-    specify { expect(@user.remember_token).not_to be_blank }
+
+    describe "when user is signed in" do
+      it "should be valid" do
+        remember_token = @user.remember_token
+        expect(@user.authenticated?(remember_token)).to be_truthy
+      end
+    end
+
+    describe "when user is forgotten" do
+      before  { @user.forget }
+      specify { expect(@user.authenticated?('')).to be_falsey }
+    end
   end
 end
