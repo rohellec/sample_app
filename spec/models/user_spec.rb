@@ -100,19 +100,7 @@ describe User do
     end
   end
 
-  describe "return value of authenticated? method" do
-    before { @user.save }
-
-    describe "when user is signed in" do
-      it "should be valid" do
-        remember_token = @user.remember_token
-        expect(@user.authenticated?(remember_token)).to be_truthy
-      end
-    end
-
-    describe "when user is forgotten" do
-      before  { @user.forget }
-      specify { expect(@user.authenticated?('')).to be_falsey }
-    end
+  describe "authenticated? method should return false for a user with nil digest" do
+    specify { expect(@user.authenticated?('')).to be_falsey }
   end
 end
