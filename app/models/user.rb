@@ -1,8 +1,6 @@
 class User < ActiveRecord::Base
   attr_accessor :remember_token
-
   before_save { email.downcase! }
-  before_create :create_remember_digest
 
   validates :name,  presence: true,
                     length: { maximum: 50 }
@@ -19,13 +17,13 @@ class User < ActiveRecord::Base
   validates :password, presence: true,
                        length: { minimum: 6 }
 
-  def User.digest(token)
+  def self.digest(token)
     cost = ActiveModel::SecurePassword ? BCrypt::Engine::MIN_COST
                                        : BCrypt::Engine.cost
     BCrypt::Password.create(token, cost: cost)
   end
 
-  def User.new_token
+  def self.new_token
     SecureRandom.urlsafe_base64
   end
 
@@ -42,11 +40,4 @@ class User < ActiveRecord::Base
   def forget
     update_attribute(:remember_digest, nil)
   end
-
-  private
-
-    def create_remember_digest
-      self.remember_token = User.new_token
-      self.remember_digest = User.digest(remember_token)
-    end
 end
