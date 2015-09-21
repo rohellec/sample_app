@@ -37,7 +37,8 @@ describe "User Pages" do
     end
 
     describe "with valid information" do
-      before { valid_fill_in }
+      let(:user) { example_user }
+      before { valid_fill_in(user) }
 
       it "should create a user" do
         expect { click_button submit }.to change(User, :count).by(1)
@@ -45,11 +46,11 @@ describe "User Pages" do
 
       describe "after saving the user" do
         before { click_button submit }
-        let(:user) { User.find_by(email: "user@example.com") }
+        let(:found_user) { User.find_by(email: user.email) }
 
         it { should have_link('Sign out') }
         it { should have_success_message('Welcome') }
-        it { should have_title(full_title(user.name)) }
+        it { should have_title(full_title(found_user.name)) }
       end
     end
 
@@ -57,5 +58,62 @@ describe "User Pages" do
     let (:page_title) { 'Sign Up' }
 
     it_should_behave_like "user pages"
+  end
+
+  describe "Edit" do
+    let(:user) { FactoryGirl.create(:user) }
+    before do
+      valid_signin user
+      visit edit_user_path(user)
+    end
+
+    describe "page" do
+      let(:heading) { "Update your profile" }
+      let(:page_title) { "Edit user" }
+
+      it_should_behave_like "user pages"
+      it { should have_link('change', href: 'http://gravatar.com/emails') }
+    end
+
+    describe "with invalid information" do
+      before { click_button "Save changes" }
+
+      it { should have_error_message('error') }
+    end
+
+    describe "with valid information" do
+      let(:new_name)  { 'New Name' }
+      let(:new_email) { 'new@example.com' }
+
+      before do
+        valid_fill_in(user, name: new_name, email: new_email)
+        click_button 'Save changes'
+      end
+
+      it { should have_title(full_title(new_name)) }
+      it { should have_success_message('Profile updated') }
+      it { should have_link('Sign out', href: signout_path) }
+      specify { expect(user.reload.name).to  eq new_name }
+      specify { expect(user.reload.email).to eq new_email }
+    end
+  end
+
+  describe 'Users page' do
+    before do
+      valid_signin FactoryGirl.create(:user)
+      FactoryGirl.create(:user, name: 'Seth', email: "seth@example.com")
+      FactoryGirl.create(:user, name: 'Johnny', email: "johnny@example.com")
+      visit users_path
+    end
+
+    let(:heading) { 'All users' }
+    let(:page_title) { 'All users' }
+
+    it_should_behave_like 'user pages'
+    it "should list each user" do
+      User.all.each do |user|
+        expect(page).to have_selector('li', text: user.name)
+      end
+    end
   end
 end

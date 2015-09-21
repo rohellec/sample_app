@@ -16,6 +16,9 @@ end
 
 gem 'rails', '4.2.1'
 gem 'bcrypt', '3.1.10'
+gem 'faker', '1.5.0'
+gem 'will_paginate', '3.0.7'
+gem 'bootstrap-will_paginate', '0.0.10'
 gem 'bootstrap-sass', '3.3.5.1'
 gem 'pg', '0.17.1'
 gem 'sass-rails', '5.0.3'

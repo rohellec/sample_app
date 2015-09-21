@@ -5,17 +5,22 @@ def example_user
     password: "foobar", password_confirmation: "foobar")
 end
 
-def valid_signin(user)
-  fill_in "Email", with: user.email
-  fill_in "Password", with: user.password
-  click_button "Sign in"
+def valid_signin(user, options = {})
+  if options[:no_capybara]
+    session[:user_id] = user.id
+  else
+    visit signin_path
+    fill_in "Email", with: user.email
+    fill_in "Password", with: user.password
+    click_button "Sign in"
+  end
 end
 
-def valid_fill_in
-  fill_in "Name",         with: "Example User"
-  fill_in "Email",        with: "user@example.com"
-  fill_in "Password",     with: "foobar"
-  fill_in "Confirmation", with: "foobar"
+def valid_fill_in(user, options = {})
+  fill_in "Name",         with: (options[:name]  ? options[:name]  : user.name)
+  fill_in "Email",        with: (options[:email] ? options[:email] : user.email)
+  fill_in "Password",     with: user.password
+  fill_in "Confirmation", with: user.password
 end
 
 RSpec::Matchers.define :have_error_message do |message|
