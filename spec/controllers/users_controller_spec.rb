@@ -14,7 +14,7 @@ describe UsersController do
         specify { expect(response).to redirect_to(signin_path) }
       end
 
-      describe 'submitting to the update action' do
+      describe 'submitting a PATCH request to the Users#update action' do
         before { patch :update, id: user.id }
         specify { expect(response).to redirect_to(signin_path) }
       end
@@ -22,6 +22,16 @@ describe UsersController do
       describe 'visiting the Users page' do
         before { get :index }
         specify { expect(response).to redirect_to(signin_path) }
+      end
+
+      describe 'submitting a DELETE request to the Users#destroy action' do
+        let(:nonadmin) { FactoryGirl.create(:user) }
+        before do
+          valid_signin(nonadmin, no_capybara: true)
+          delete :destroy, id: user.id
+        end
+
+        specify { expect(response).to redirect_to(root_url) }
       end
     end
 

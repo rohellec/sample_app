@@ -98,21 +98,44 @@ describe "User Pages" do
     end
   end
 
-  describe 'Users page' do
-    before do
-      valid_signin FactoryGirl.create(:user)
-      FactoryGirl.create(:user, name: 'Seth', email: "seth@example.com")
-      FactoryGirl.create(:user, name: 'Johnny', email: "johnny@example.com")
+  describe "index" do
+    let(:user) { FactoryGirl.create(:user) }
+    before(:each) do
+      valid_signin user
       visit users_path
     end
 
-    let(:heading) { 'All users' }
-    let(:page_title) { 'All users' }
+    it { should have_title("All users") }
+    it { should have_selector("h1", text: "All users") }
 
-    it_should_behave_like 'user pages'
-    it "should list each user" do
-      User.all.each do |user|
-        expect(page).to have_selector('li', text: user.name)
+    describe "pagination" do
+      before(:all) { 10.times { FactoryGirl.create(:user) } }
+      after(:all)  { User.delete_all }
+
+      it { should have_selector("div.pagination") }
+
+      it "should list each user" do
+        User.paginate(page: 1, per_page: 10).each do |user|
+          expect(page).to have_selector('li', text: user.name)
+        end
+      end
+    end
+
+    describe "delete links" do
+      it { should_not have_link("delete") }
+
+      describe "sign in as an admin" do
+        let(:admin) { FactoryGirl.create(:admin) }
+        before do
+          valid_signin admin
+          visit users_path
+        end
+
+        it { should have_link("delete", href: user_path(User.first)) }
+        it { should_not have_link("delete", href: user_path(admin)) }
+        it "should be able to delete another user" do
+          expect { click_link "delete", match: :first }.to change(User, :count).by(-1)
+        end
       end
     end
   end
