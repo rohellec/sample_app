@@ -27,6 +27,13 @@ describe UsersController do
       specify { expect(response).to redirect_to(root_url) }
     end
 
+    describe 'submitting a DELETE request to the signed_in admin' do
+      let(:admin) { FactoryGirl.create(:admin) }
+      before { sign_in(admin, no_capybara: true) }
+
+      specify { expect { delete :destroy, id: admin }.not_to change(User, :count) }
+    end
+
     describe 'for signed-in users' do
       before { sign_in(user, no_capybara: true) }
 
