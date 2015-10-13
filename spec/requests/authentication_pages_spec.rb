@@ -5,6 +5,23 @@ require_relative '../support/factories.rb'
 describe 'Authentication' do
   subject { page }
 
+  shared_examples_for "logged in layout" do
+    it { should have_link('Users',       href: users_path) }
+    it { should have_link('Profile',     href: user_path(user)) }
+    it { should have_link('Settings',    href: edit_user_path(user)) }
+    it { should have_link('Sign out',    href: signout_path) }
+    it { should_not have_link('Sign in', href: signin_path) }
+  end
+
+  shared_examples_for "logged out layout" do
+    it { should_not have_link('Users',       href: users_path) }
+    it { should_not have_link('Profile',     href: user_path(user)) }
+    it { should_not have_link('Settings',    href: edit_user_path(user)) }
+    it { should_not have_link('Sign out',    href: signout_path) }
+    it { should have_link('Sign in', href: signin_path) }
+  end
+
+
   describe 'SignIn page' do
     before { visit signin_path }
 
@@ -29,34 +46,22 @@ describe 'Authentication' do
 
     describe 'with valid information' do
       let(:user) { FactoryGirl.create(:user) }
-      before { valid_signin(user) }
+      before { sign_in(user) }
 
       it { should have_title(full_title(user.name)) }
-      it { should have_link('Users',       href: users_path) }
-      it { should have_link('Profile',     href: user_path(user)) }
-      it { should have_link('Settings',    href: edit_user_path(user)) }
-      it { should have_link('Sign out',    href: signout_path) }
-      it { should_not have_link('Sign in', href: signin_path) }
+      it_should_behave_like 'logged in layout'
 
       describe 'followed by sign out' do
         before { click_link 'Sign out' }
 
         it { should have_title(full_title('')) }
-        it { should have_link('Sign in', href: signin_path) }
-        it { should_not have_link('Sign out', href: signout_path) }
-        it { should_not have_link('Profile',  href: user_path(user)) }
-        it { should_not have_link('Settings', href: edit_user_path(user)) }
-        it { should_not have_link('Users', href: users_path) }
+        it_should_behave_like 'logged out layout'
 
         describe 'and then signed out from another window' do
           before { delete signout_path }
 
           it { should have_title(full_title('')) }
-          it { should have_link('Sign in', href: signin_path) }
-          it { should_not have_link('Sign out', href: signout_path) }
-          it { should_not have_link('Profile',  href: user_path(user)) }
-          it { should_not have_link('Settings', href: edit_user_path(user)) }
-          it { should_not have_link('Users', href: users_path) }
+          it_should_behave_like 'logged out layout'
         end
       end
     end

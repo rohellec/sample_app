@@ -5,7 +5,7 @@ def example_user
     password: "foobar", password_confirmation: "foobar")
 end
 
-def valid_signin(user, options = {})
+def sign_in(user, options = {})
   if options[:no_capybara]
     session[:user_id] = user.id
   else
