@@ -27,6 +27,20 @@ describe UsersController do
       specify { expect(response).to redirect_to(root_url) }
     end
 
+    describe 'for signed-in users' do
+      before { sign_in(user, no_capybara: true) }
+
+      describe 'visiting the SignUp page' do
+        before { get :new, id: user }
+        specify { expect(response).to redirect_to(users_path) }
+      end
+
+      describe 'submitting a POST request to the Users#create action' do
+        before { post :create, id: user }
+        specify { expect(response).to redirect_to(users_path) }
+      end
+    end
+
     describe 'for non-signed-in users' do
 
       describe 'visiting the Edit page' do
