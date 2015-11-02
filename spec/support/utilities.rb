@@ -1,6 +1,6 @@
 include ApplicationHelper
 
-def example_user
+def new_user
   User.new(name: "Example User", email: "user@example.com",
     password: "foobar", password_confirmation: "foobar")
 end
@@ -16,9 +16,9 @@ def sign_in(user, options = {})
   end
 end
 
-def valid_fill_in(user, options = {})
-  fill_in "Name",         with: (options[:name]  ? options[:name]  : user.name)
-  fill_in "Email",        with: (options[:email] ? options[:email] : user.email)
+def fill_in_user_form(user, options = {})
+  fill_in "Name",         with: (options[:name]  || user.name)
+  fill_in "Email",        with: (options[:email] || user.email)
   fill_in "Password",     with: user.password
   fill_in "Confirmation", with: user.password
 end

@@ -1,6 +1,4 @@
 require 'rails_helper'
-require_relative '../support/utilities.rb'
-require_relative '../support/factories.rb'
 
 describe UsersController do
 

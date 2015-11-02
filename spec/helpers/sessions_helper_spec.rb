@@ -1,5 +1,4 @@
 require 'rails_helper'
-require_relative '../support/factories.rb'
 
 describe SessionsHelper do
   let(:user) { FactoryGirl.create(:user) }
@@ -17,6 +16,7 @@ describe SessionsHelper do
 
   describe "when user is remembered cookies should not be nil" do
     specify { expect(cookies[:remember_token]).not_to be_nil }
+    specify { expect(cookies[:remember_token]).to eq user.remember_token }
   end
 
   describe "when user is forgotten cookies should be nil" do

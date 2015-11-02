@@ -1,9 +1,8 @@
 require 'rails_helper'
-require_relative '../support/utilities.rb'
 
 describe User do
 
-  before { @user = example_user }
+  before { @user = new_user }
 
   subject { @user }
 
@@ -81,6 +80,11 @@ describe User do
     it { should_not be_valid }
   end
 
+  describe "when password is blank" do
+    before { @user.password = @user.password = " " * 6 }
+    it { should_not be_valid }
+  end
+
   describe "when password doesn't match confirmation" do
     before { @user.password_confirmation = "mismatch" }
     it { should_not be_valid }
@@ -108,6 +112,7 @@ describe User do
   end
 
   describe "authenticated? method should return false for a user with nil digest" do
+    before { @user.save }
     specify { expect(@user.authenticated?('')).to be_falsey }
   end
 end

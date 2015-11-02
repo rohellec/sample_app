@@ -1,6 +1,4 @@
 require 'rails_helper'
-require_relative '../support/utilities.rb'
-require_relative '../support/factories.rb'
 
 describe 'Authentication' do
   subject { page }
@@ -35,7 +33,7 @@ describe 'Authentication' do
     describe 'with invalid information' do
       before { click_button 'Sign in' }
 
-      it { should have_title(full_title('Sign In')) }
+      it { should have_title('Sign In') }
       it { should have_error_message('Invalid') }
 
       describe "after visiting another page" do

@@ -1,27 +1,23 @@
 require 'rails_helper'
-require_relative '../support/utilities.rb'
-require_relative '../support/factories.rb'
 
 describe "User Pages" do
-  subject { page }
 
-  shared_examples_for "user pages" do
-    it { should have_selector('h1', text: heading) }
-    it { should have_title(full_title(page_title)) }
-  end
+  subject { page }
 
   describe "Profile page" do
     let (:user) { FactoryGirl.create(:user) }
-    let (:heading) { user.name }
-    let (:page_title) { user.name }
     before { visit user_path(user) }
 
-    it_should_behave_like "user pages"
+    it { should have_selector('h1', text: user.name) }
+    it { should have_title(full_title(user.name)) }
   end
 
   describe "SignUp Page" do
     before { visit signup_path }
     let(:submit) { "Create my account" }
+
+    it { should have_selector("h1", text: "Sign Up") }
+    it { should have_title(full_title("Sign Up")) }
 
     describe "with invalid information" do
       it "should not create a user" do
@@ -32,13 +28,13 @@ describe "User Pages" do
         before { click_button submit }
 
         it { should have_error_message('error') }
-        it { should have_title(full_title('Sign Up')) }
+        it { should have_title('Sign Up') }
       end
     end
 
     describe "with valid information" do
-      let(:user) { example_user }
-      before { valid_fill_in(user) }
+      let(:user) { new_user }
+      before { fill_in_user_form(user) }
 
       it "should create a user" do
         expect { click_button submit }.to change(User, :count).by(1)
@@ -50,14 +46,9 @@ describe "User Pages" do
 
         it { should have_link('Sign out') }
         it { should have_success_message('Welcome') }
-        it { should have_title(full_title(found_user.name)) }
+        it { should have_title(found_user.name) }
       end
     end
-
-    let (:heading) { 'Sign Up' }
-    let (:page_title) { 'Sign Up' }
-
-    it_should_behave_like "user pages"
   end
 
   describe "Edit" do
@@ -68,17 +59,16 @@ describe "User Pages" do
     end
 
     describe "page" do
-      let(:heading) { "Update your profile" }
-      let(:page_title) { "Edit user" }
-
-      it_should_behave_like "user pages"
+      it { should have_selector("h1", text: "Update your profile") }
+      it { should have_title(full_title("Edit user")) }
       it { should have_link('change', href: 'http://gravatar.com/emails') }
     end
 
     describe "with invalid information" do
       before { click_button "Save changes" }
 
-      it { should have_error_message('error') }
+      it { should have_error_message("error") }
+      it { should have_title("Edit user") }
     end
 
     describe "with valid information" do
@@ -86,7 +76,7 @@ describe "User Pages" do
       let(:new_email) { 'new@example.com' }
 
       before do
-        valid_fill_in(user, name: new_name, email: new_email)
+        fill_in_user_form(user, name: new_name, email: new_email)
         click_button 'Save changes'
       end
 
