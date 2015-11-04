@@ -37,30 +37,35 @@ describe UsersController do
 
       describe 'visiting the SignUp page' do
         before { get :new, id: user }
-        specify { expect(response).to redirect_to(users_path) }
+        specify { expect(response).to redirect_to(root_url) }
       end
 
       describe 'submitting a POST request to the Users#create action' do
         before { post :create, id: user }
-        specify { expect(response).to redirect_to(users_path) }
+        specify { expect(response).to redirect_to(root_url) }
       end
     end
 
     describe 'for non-signed-in users' do
 
       describe 'visiting the Edit page' do
-        before { get :edit, id: user.id }
-        specify { expect(response).to redirect_to(signin_path) }
+        before { get :edit, id: user }
+        specify { expect(response).to redirect_to(signin_url) }
       end
 
       describe 'submitting a PATCH request to the Users#update action' do
-        before { patch :update, id: user.id }
-        specify { expect(response).to redirect_to(signin_path) }
+        before { patch :update, id: user }
+        specify { expect(response).to redirect_to(signin_url) }
+      end
+
+      describe 'submitting a DELETE request to the Users#delete action' do
+        before { delete :destroy, id: user }
+        specify { expect(response).to redirect_to(signin_url)}
       end
 
       describe 'visiting the Users page' do
         before { get :index }
-        specify { expect(response).to redirect_to(signin_path) }
+        specify { expect(response).to redirect_to(signin_url) }
       end
     end
 
