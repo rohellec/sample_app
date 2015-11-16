@@ -4,12 +4,31 @@ describe "User Pages" do
 
   subject { page }
 
-  describe "Profile page" do
-    let (:user) { FactoryGirl.create(:user) }
-    before { visit user_path(user) }
+  shared_examples_for "logged in layout" do
+    it { should have_link('Users',       href: users_path) }
+    it { should have_link('Profile',     href: user_path(found_user)) }
+    it { should have_link('Settings',    href: edit_user_path(found_user)) }
+    it { should have_link('Sign out',    href: signout_path) }
+    it { should_not have_link('Sign in', href: signin_path) }
+  end
 
-    it { should have_selector('h1', text: user.name) }
-    it { should have_title(full_title(user.name)) }
+  describe "Profile page" do
+
+    describe "trying to visit for not-activated user" do
+      let(:user) { FactoryGirl.create(:user, activated: false) }
+      before { visit user_path(user) }
+
+      it { should have_title("Sample App") }
+      it { should have_selector("h1", text: "Sample App") }
+    end
+
+    describe "for activated user" do
+      let (:user) { FactoryGirl.create(:user) }
+      before { visit user_path(user) }
+
+      it { should have_selector('h1', text: user.name) }
+      it { should have_title(full_title(user.name)) }
+    end
   end
 
   describe "SignUp Page" do
@@ -40,13 +59,55 @@ describe "User Pages" do
         expect { click_button submit }.to change(User, :count).by(1)
       end
 
-      describe "after saving the user" do
-        before { click_button submit }
+      describe "after submission" do
+        before do
+          ActionMailer::Base.deliveries.clear
+          click_button submit
+        end
+
         let(:found_user) { User.find_by(email: user.email) }
 
-        it { should have_link('Sign out') }
-        it { should have_success_message('Welcome') }
-        it { should have_title(found_user.name) }
+        it "should not activate user" do
+          expect(ActionMailer::Base.deliveries.size).to eq 1
+          expect(found_user).not_to be_activated
+        end
+
+        it "should not allow to sign in" do
+          sign_in(user)
+          message = "Account not activated. Check your email for activation link."
+          expect(page).to have_warning_message(message)
+          expect(page).to have_title("Sample App")
+        end
+
+        describe "following activation link" do
+
+          describe "with invalid activation token" do
+            before { visit edit_account_activation_path("invalid token", email: found_user.email) }
+
+            it { should have_title("Sample App") }
+            it { should have_error_message("Invalid activation link") }
+          end
+
+          describe "with valid activation_token" do
+            let(:activation_token) { last_email.to_s.match(/(?<=account_activations\/)[\-\w]+/) }
+
+            describe "with wrong email" do
+              before { visit edit_account_activation_path(activation_token, email: "wrong_email@example.com") }
+
+              it { should have_title("Sample App") }
+              it { should have_error_message("Invalid activation link") }
+            end
+
+            describe "with right email" do
+              before { visit edit_account_activation_path(activation_token, email: found_user.email) }
+
+              it { should have_title(found_user.name) }
+              it { should have_success_message("Account activated!") }
+              it_should_behave_like "logged in layout"
+              specify { expect(found_user.reload).to be_activated }
+            end
+          end
+        end
       end
     end
   end
@@ -65,7 +126,10 @@ describe "User Pages" do
     end
 
     describe "with invalid information" do
-      before { click_button "Save changes" }
+      before do
+        fill_in "Name", with: ""
+        click_button "Save changes"
+      end
 
       it { should have_error_message("error") }
       it { should have_title("Edit user") }
@@ -99,14 +163,18 @@ describe "User Pages" do
     it { should have_selector("h1", text: "All users") }
 
     describe "pagination" do
-      before(:all) { 10.times { FactoryGirl.create(:user) } }
+      before(:all) do
+        10.times { FactoryGirl.create(:user, activated: false) }
+        10.times { FactoryGirl.create(:user) }
+      end
       after(:all)  { User.delete_all }
 
       it { should have_selector("div.pagination") }
 
       it "should list each user" do
-        User.paginate(page: 1, per_page: 10).each do |user|
-          expect(page).to have_selector('li', text: user.name)
+        User.paginate(page: 1, per_page: 20).each do |user|
+          expect(page).to     have_selector('li', text: user.name) if user.activated?
+          expect(page).not_to have_selector('li', text: user.name) if !user.activated?
         end
       end
     end

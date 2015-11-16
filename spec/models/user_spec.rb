@@ -113,6 +113,6 @@ describe User do
 
   describe "authenticated? method should return false for a user with nil digest" do
     before { @user.save }
-    specify { expect(@user.authenticated?('')).to be_falsey }
+    specify { expect(@user.authenticated?(:remember, '')).to be_falsey }
   end
 end
