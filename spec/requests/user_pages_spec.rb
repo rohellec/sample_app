@@ -23,11 +23,21 @@ describe "User Pages" do
     end
 
     describe "for activated user" do
-      let (:user) { FactoryGirl.create(:user) }
-      before { visit user_path(user) }
+      let(:user) { FactoryGirl.create(:user) }
+      before do
+        50.times { user.microposts.create!(content: Faker::Lorem.sentence(5)) }
+        visit user_path(user)
+      end
 
       it { should have_selector('h1', text: user.name) }
       it { should have_title(full_title(user.name)) }
+      it { should have_selector('div.pagination') }
+
+      it "should list each micropost" do
+        user.microposts.paginate(page: 1) do |micropost|
+          expect(page).to have_selector("li#micropost-#{micropost.id}", text: micropost.content)
+        end
+      end
     end
   end
 

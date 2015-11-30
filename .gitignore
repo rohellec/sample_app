@@ -16,6 +16,12 @@
 !/log/.keep
 /tmp
 
+# Ignore Spring files.
+/spring/*.pid
+
+# Ignore uploaded test images.
+/public/uploads
+
 #Ignore other unnecessary files
 database.yml
 doc/

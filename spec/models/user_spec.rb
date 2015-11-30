@@ -6,14 +6,19 @@ describe User do
 
   subject { @user }
 
-  it { should respond_to (:name)  }
-  it { should respond_to (:email) }
-  it { should respond_to (:password_digest) }
-  it { should respond_to (:password) }
-  it { should respond_to (:password_confirmation) }
-  it { should respond_to (:remember_digest) }
-  it { should respond_to (:remember_token) }
-  it { should respond_to (:admin) }
+  it { should respond_to(:name)  }
+  it { should respond_to(:email) }
+  it { should respond_to(:password_digest) }
+  it { should respond_to(:password) }
+  it { should respond_to(:password_confirmation) }
+  it { should respond_to(:remember_digest) }
+  it { should respond_to(:remember_token) }
+  it { should respond_to(:admin) }
+  it { should respond_to(:activation_token) }
+  it { should respond_to(:activation_digest) }
+  it { should respond_to(:reset_digest) }
+  it { should respond_to(:reset_token) }
+  it { should respond_to(:microposts) }
 
   it { should be_valid }
   it { should_not be_admin }
@@ -114,5 +119,26 @@ describe User do
   describe "authenticated? method should return false for a user with nil digest" do
     before { @user.save }
     specify { expect(@user.authenticated?(:remember, '')).to be_falsey }
+  end
+
+  describe "micropost associations" do
+    before { @user.save }
+
+    it "order should be most recent first" do
+      5.times do
+        micropost = FactoryGirl.create(:micropost, content: "Lorem Ipsum", user_id: @user.id)
+        expect(micropost).to eq Micropost.first
+      end
+    end
+
+    it "should destroy associated microposts" do
+      5.times { FactoryGirl.create(:micropost, content: "Lorem Ipsum", user_id: @user.id) }
+      microposts = @user.microposts.to_a
+      @user.destroy
+      expect(microposts).not_to be_empty
+      microposts.each do |post|
+        expect(Micropost.find_by(id: post.id)).to be_nil
+      end
+    end
   end
 end

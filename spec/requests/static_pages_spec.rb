@@ -16,6 +16,23 @@ describe "Static pages" do
 
     it_should_behave_like "all static pages"
     it { should_not have_title("| Home") }
+
+    describe "for signed in user" do
+      let(:user) { FactoryGirl.create(:user) }
+      before do
+        50.times { user.microposts.create!(content: Faker::Lorem.sentence(5)) }
+        sign_in(user)
+        visit root_path
+      end
+
+      it { should have_selector("div.pagination") }
+      it { should have_selector("span.picture") }
+      it "should list feed microposts" do
+        user.feed.paginate(page: 1) do |micropost|
+          expect(page).to have_selector("li#micropost-#{micropost.id}", text: micropost.content)
+        end
+      end
+    end
   end
 
   describe "Help page" do

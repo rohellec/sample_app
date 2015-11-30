@@ -14,6 +14,7 @@ class User < ActiveRecord::Base
                     format: { with: VALID_EMAIL_REGEX }
 
   has_secure_password
+  has_many :microposts, dependent: :destroy
 
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
 
@@ -62,6 +63,10 @@ class User < ActiveRecord::Base
 
   def password_reset_expired?
     reset_sent_at < 2.hours.ago
+  end
+
+  def feed
+    Micropost.where("user_id = ?", id)
   end
 
   private
