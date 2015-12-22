@@ -39,6 +39,30 @@ describe "User Pages" do
         end
       end
     end
+
+    describe "followers/following count" do
+      let(:user) { FactoryGirl.create(:user) }
+
+      describe "for followers" do
+        before do
+          5.times { FactoryGirl.create(:user).follow(user) }
+          visit user_path(user)
+        end
+
+        specify { expect(user.followers).not_to be_empty }
+        it { should have_link("#{user.followers.count} followers", href: followers_user_path(user)) }
+      end
+
+      describe "for following" do
+        before do
+          5.times { user.follow(FactoryGirl.create(:user)) }
+          visit user_path(user)
+        end
+
+        specify { expect(user.following).not_to be_empty }
+        it { should have_link("#{user.following.count} following", href: following_user_path(user)) }
+      end
+    end
   end
 
   describe "SignUp Page" do

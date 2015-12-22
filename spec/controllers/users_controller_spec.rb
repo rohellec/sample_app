@@ -67,6 +67,16 @@ describe UsersController do
         before { get :index }
         specify { expect(response).to redirect_to(signin_url) }
       end
+
+      describe 'visiting following page' do
+        before { get :following, id: user }
+        specify { expect(response).to redirect_to(signin_url) }
+      end
+
+      describe 'visiting followers page' do
+        before { get :followers, id: user }
+        specify { expect(response).to redirect_to(signin_url) }
+      end
     end
 
     describe 'as wrong user' do

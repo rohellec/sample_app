@@ -27,7 +27,12 @@ describe "Static pages" do
 
       it { should have_selector("div.pagination") }
       it { should have_selector("span.picture") }
-      it "should list feed microposts" do
+
+      it "should list user's and following feed microposts" do
+        10.times { user.follow(FactoryGirl.create(:user)) }
+        user.following.each do |followed|
+          followed.microposts.create!(content: Faker::Lorem.sentence(5))
+        end
         user.feed.paginate(page: 1) do |micropost|
           expect(page).to have_selector("li#micropost-#{micropost.id}", text: micropost.content)
         end

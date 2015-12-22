@@ -22,3 +22,10 @@ users = User.order(:created_at).first(7)
 users.each do |user|
   50.times { user.microposts.create!(content: Faker::Lorem.sentence(5)) }
 end
+
+users = User.all
+user = users.first
+following = users[2..50]
+followers = users[3..40]
+following.each { |follower| follower.follow(user) }
+followers.each { |followed| user.follow(followed) }

@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :user do
+  factory :user, aliases: [:follower, :followed] do
     sequence(:name)  { |n| "Person_#{n}" }
     sequence(:email) { |n| "person_#{n}@example.com" }
     password "foobar"
@@ -15,5 +15,10 @@ FactoryGirl.define do
   factory :micropost do
     sequence(:content) { |n| "Lorem ipsum_#{n}" }
     user
+  end
+
+  factory :relationship do
+    follower
+    followed
   end
 end

@@ -19,6 +19,12 @@ describe User do
   it { should respond_to(:reset_digest) }
   it { should respond_to(:reset_token) }
   it { should respond_to(:microposts) }
+  it { should respond_to(:feed) }
+  it { should respond_to(:active_relationships) }
+  it { should respond_to(:passive_relationships) }
+  it { should respond_to(:following) }
+  it { should respond_to(:followers) }
+  it { should respond_to(:following?) }
 
   it { should be_valid }
   it { should_not be_admin }
@@ -139,6 +145,86 @@ describe User do
       microposts.each do |post|
         expect(Micropost.find_by(id: post.id)).to be_nil
       end
+    end
+
+    describe "feed" do
+      let(:micropost) { @user.microposts.create(content: Faker::Lorem.sentence) }
+      let(:unfollowed_post) do
+        FactoryGirl.create(:micropost, content: Faker::Lorem.sentence, user: FactoryGirl.create(:user))
+      end
+      let(:followed) { FactoryGirl.create(:user) }
+
+      before do
+        @user.follow(followed)
+        3.times { followed.microposts.create(content: Faker::Lorem.sentence) }
+      end
+
+      it "should contain own micropost" do
+        expect(@user.feed).to include micropost
+      end
+
+      it "should contain microposts of followed user" do
+        followed.microposts.each do |post|
+          expect(@user.feed).to include post
+        end
+      end
+
+      it "should not contain unfollowed posts" do
+        expect(@user.feed).not_to include unfollowed_post
+      end
+    end
+  end
+
+  describe "associated relationships" do
+    before { @user.save }
+
+    describe "active_relationships" do
+      before do
+        5.times { @user.follow(FactoryGirl.create(:user)) }
+      end
+
+      it "should be destroyed when user is deleted" do
+        following = @user.following.to_a
+        @user.destroy
+        expect(following).not_to be_empty
+        following.each do |followed|
+          expect(Relationship.find_by(follower_id: @user.id, followed_id: followed.id)).to be_nil
+        end
+      end
+    end
+
+    describe "passive_relationships" do
+      before do
+        5.times { FactoryGirl.create(:user).follow(@user) }
+      end
+
+      it "should be destroyed when user is deleted" do
+        followers = @user.followers.to_a
+        @user.destroy
+        expect(followers).not_to be_empty
+        followers.each do |follower|
+          expect(Relationship.find_by(follower_id: follower.id, followed_id: @user.id)).to be_nil
+        end
+      end
+    end
+  end
+
+  describe "following" do
+    let(:followed) { FactoryGirl.create(:user) }
+    before do
+      @user.save
+      @user.follow(followed)
+    end
+
+    it { should be_following(followed) }
+    specify { expect(@user.following).to include(followed) }
+    specify { expect(followed.followers).to include(@user) }
+
+    describe "and unfollowing" do
+      before { @user.unfollow(followed) }
+
+      it { should_not be_following(followed) }
+      specify { expect(@user.following).not_to include(followed) }
     end
   end
 end
